@@ -358,9 +358,9 @@ class LowLatencyClauseAggregator(BaseTextAggregator):
                     yield Aggregation(text=clause, type=AggregationType.SENTENCE)
                     continue
 
-            # First clause emits after >= 3 words; subsequent clauses after >= 7 words
+            # First clause emits after >= 2 words; subsequent clauses after >= 5 words
             words = self._buffer.strip().split()
-            threshold = 3 if self._first_clause else 7
+            threshold = 2 if self._first_clause else 5
             if len(words) >= threshold:
                 split_idx = self._buffer.rfind(" ")
                 if split_idx > 0:
