@@ -91,8 +91,9 @@ class OpenAILLMClient:
         api_key: Optional[str] = None,
         model: Optional[str] = None,
     ) -> None:
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
-        self.model = model or os.environ.get("OPENAI_MODEL", "gpt-5.6-luna")
+        from app.config import OPENAI_API_KEY, OPENAI_MODEL
+        self.api_key = api_key or OPENAI_API_KEY or os.environ.get("OPENAI_API_KEY")
+        self.model = model or OPENAI_MODEL or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
         if not self.api_key:
             logger.error("Failed to initialise OpenAILLMClient: OPENAI_API_KEY is not set.")
             raise ValueError(
