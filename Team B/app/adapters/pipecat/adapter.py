@@ -401,8 +401,8 @@ def _build_real_pipeline_task(
         from app.adapters.pipecat.turn_guard import ValidatedUserTurnStartStrategy, OptimizedUserTurnStopStrategy
         agg_params = LLMUserAggregatorParams(
             user_turn_strategies=UserTurnStrategies(
-                start=[ValidatedUserTurnStartStrategy(min_speech_duration=0.25, shared_state=shared_state)],
-                stop=[OptimizedUserTurnStopStrategy(user_speech_timeout=0.45, shared_state=shared_state)]
+                start=[ValidatedUserTurnStartStrategy(min_speech_duration=0.20, shared_state=shared_state)],
+                stop=[OptimizedUserTurnStopStrategy(user_speech_timeout=float(os.getenv("USER_SPEECH_TIMEOUT_SEC", "0.30")), shared_state=shared_state)]
             )
         )
         user_agg = FlowizUserAggregator(context, params=agg_params)
@@ -916,7 +916,6 @@ class PipecatAdapter:
                     self.task._llm_context.add_message({
                         "role": "assistant",
                         "content": greeting_text,
-                        "source": "INTERNAL_GREETING",
                     })
 
                 frames_to_queue = [
