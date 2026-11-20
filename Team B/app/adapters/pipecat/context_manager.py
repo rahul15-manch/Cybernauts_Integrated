@@ -533,7 +533,10 @@ class SlidingWindowLLMContext(LLMContext):
             self._raw_system_prompt = content
 
         self._full_history.append(message)
-        super().add_message(message)
+        # Store clean message without internal metadata in Pipecat's message list
+        ALLOWED_KEYS = {"role", "content", "name", "tool_calls", "tool_call_id"}
+        clean_message = {k: v for k, v in message.items() if k in ALLOWED_KEYS} if isinstance(message, dict) else message
+        super().add_message(clean_message)
 
     def add_messages(self, messages: List[dict]) -> None:
         """Add multiple messages to context."""
@@ -602,7 +605,17 @@ class SlidingWindowLLMContext(LLMContext):
         if truncate_large_values and hasattr(LLMContext, "_truncate_large_values_from_messages"):
             result = LLMContext._truncate_large_values_from_messages(result)
 
-        return result
+        # Sanitize messages to strictly comply with LLM Chat Completion schemas (OpenAI, Groq, etc.)
+        # Extra metadata properties like 'source', 'is_internal_instruction', etc. must not be forwarded
+        ALLOWED_KEYS = {"role", "content", "name", "tool_calls", "tool_call_id"}
+        sanitized_result = []
+        for msg in result:
+            if isinstance(msg, dict):
+                sanitized_result.append({k: v for k, v in msg.items() if k in ALLOWED_KEYS})
+            else:
+                sanitized_result.append(msg)
+
+        return sanitized_result
 
     @property
     def messages(self) -> List[dict]:

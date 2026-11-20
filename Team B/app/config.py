@@ -41,7 +41,7 @@ GROQ_WHISPER_MODEL: str = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turb
 
 # ── OpenAI (LLM) ──────────────────────────────────────────────────────
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
+OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_USE_RESPONSES: bool = os.getenv("OPENAI_USE_RESPONSES", "false").lower() in ("true", "1")
 
 # ── ElevenLabs (Text-to-Speech) ───────────────────────────────────────
@@ -53,14 +53,14 @@ ELEVENLABS_MODEL: str = os.getenv("ELEVENLABS_MODEL", "eleven_turbo_v2_5")
 STT_PROVIDER: str = os.getenv("STT_PROVIDER", "deepgram")  # "deepgram" | "sarvam"
 
 # ── TTS Provider Selection ─────────────────────────────────────────────
-TTS_PROVIDER: str = os.getenv("TTS_PROVIDER", "elevenlabs")  # "elevenlabs" | "deepgram" | "cartesia" | "sarvam"
+TTS_PROVIDER: str = os.getenv("TTS_PROVIDER", "cartesia")  # Exclusive TTS provider: Cartesia
 
 # ── Deepgram (also used for TTS, separate voice setting from STT) ─────
 DEEPGRAM_TTS_VOICE: str = os.getenv("DEEPGRAM_TTS_VOICE", "aura-2-asteria-en")
 
 # ── Cartesia (Text-to-Speech) ──────────────────────────────────────────
 CARTESIA_API_KEY: str = os.getenv("CARTESIA_API_KEY", "")
-CARTESIA_VOICE_ID: str = os.getenv("CARTESIA_VOICE_ID", "95d51f79-c397-46f9-b49a-23763d3eaa2d")
+CARTESIA_VOICE_ID: str = os.getenv("CARTESIA_VOICE_ID", "47f3bbb1-e98f-4e0c-92c5-5f0325e1e206")
 CARTESIA_MODEL: str = os.getenv("CARTESIA_MODEL", "sonic-3.5")
 CARTESIA_LANGUAGE: str = os.getenv("CARTESIA_LANGUAGE", "hi")
 
