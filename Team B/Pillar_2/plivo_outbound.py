@@ -16,8 +16,22 @@ def place_plivo_outbound_call(
     session_id: str | None = None,
     dispatch_id: str | None = None,
     record_call: bool = False,
-) -> str:
     server_base_url = (os.getenv("PUBLIC_BASE_URL") or os.getenv("SERVER_BASE_URL", "")).rstrip("/")
+
+    # Resilient auto-detection: If ngrok is active locally on port 4040, automatically sync with live tunnel URL
+    try:
+        import urllib.request, json
+        req = urllib.request.Request("http://127.0.0.1:4040/api/tunnels", headers={"User-Agent": "curl/8.0"})
+        with urllib.request.urlopen(req, timeout=0.6) as resp:
+            data = json.loads(resp.read().decode())
+            for t in data.get("tunnels", []):
+                if t.get("proto") == "https" and t.get("public_url"):
+                    active_ngrok = t["public_url"].rstrip("/")
+                    if not server_base_url or "ngrok" in server_base_url:
+                        server_base_url = active_ngrok
+                    break
+    except Exception:
+        pass
     plivo_auth_id = os.getenv("PLIVO_AUTH_ID", "")
     plivo_auth_token = os.getenv("PLIVO_AUTH_TOKEN", "")
     plivo_phone_number = os.getenv("PLIVO_PHONE_NUMBER", "")
@@ -71,23 +85,5 @@ def place_plivo_outbound_call(
         or str(response)
     )
     logger.info(f"Plivo outbound call dispatched. UUID: {call_uuid}")
-
-    # Proactively pre-warm greeting audio while Plivo dials and phone rings
-    try:
-        import asyncio
-        from app.adapters.pipecat.sarvam_tts_service import prewarm_tts_audio
-        from app.services.persona_registry import get_persona, resolve_opening_greeting
-        p_obj = get_persona(persona or voice or "shreya")
-        greet = resolve_opening_greeting(
-            persona_id_or_voice=persona or voice,
-            company_context=company_context,
-        )
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(prewarm_tts_audio(greet, voice=p_obj.voice, sample_rate=8000))
-        except RuntimeError:
-            pass
-    except Exception as pw_err:
-        logger.debug(f"Plivo prewarm notice: {pw_err}")
 
     return str(call_uuid)
